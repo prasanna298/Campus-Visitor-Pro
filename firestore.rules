@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: visitors
+    // Document ID: visitorId (auto-generated)
+    // Fields:
+    //   - name: string (required)
+    //   - email: string (optional)
+    //   - phone: string (optional)
+    //   - purpose: string (optional)
+    //   - hostName: string (optional)
+    //   - checkInTime: timestamp (optional)
+    //   - checkOutTime: timestamp (optional)
+    //   - status: string (required, enum: invited, checked-in, checked-out)
+    //   - invitationId: string (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: invitations
+    // Document ID: invitationId (auto-generated)
+    // Fields:
+    //   - visitorName: string (required)
+    //   - visitorEmail: string (required)
+    //   - hostName: string (required)
+    //   - hostEmail: string (required)
+    //   - scheduledDate: timestamp (required)
+    //   - purpose: string (optional)
+    //   - code: string (required)
+    //   - status: string (required, enum: pending, used, expired)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidVisitor(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.status in ['invited', 'checked-in', 'checked-out'] &&
+             data.createdAt is timestamp &&
+             (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() < 200000)); // Max 200KB for photo
+    }
+
+    function isValidInvitation(data) {
+      return data.visitorName is string && data.visitorName.size() > 0 &&
+             data.visitorEmail is string && isValidEmail(data.visitorEmail) &&
+             data.hostName is string && data.hostName.size() > 0 &&
+             data.code is string && data.code.size() > 0 &&
+             data.status in ['pending', 'pre-registered', 'used', 'expired'] &&
+             data.createdAt is timestamp &&
+             (!('documents' in data) || data.documents is list);
+    }
+
+    // Rules for visitors
+    match /visitors/{visitorId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidVisitor(request.resource.data);
+      allow update: if isAuthenticated() && isValidVisitor(request.resource.data);
+      allow delete: if false; // Visitors should not be deleted for traceability
+    }
+
+    // Rules for invitations
+    match /invitations/{invitationId} {
+      allow read: if isAuthenticated() || (resource.data.status == 'pending');
+      allow create: if isAuthenticated() && isValidInvitation(request.resource.data);
+      allow update: if (isAuthenticated() || (resource.data.status == 'pending' && request.resource.data.code == resource.data.code)) && isValidInvitation(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Rules for counters
+    match /counters/{counterId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

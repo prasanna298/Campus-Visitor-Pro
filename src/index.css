@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+/* Custom styles for html5-qrcode scanner */
+#reader {
+  border: none !important;
+}
+
+#reader__scan_region {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+#reader__dashboard {
+  padding: 1rem !important;
+}
+
+#reader__dashboard_section_csr button,
+#reader__dashboard_section_fsr button {
+  background-color: #4f46e5 !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+#reader__dashboard_section_csr button:hover,
+#reader__dashboard_section_fsr button:hover {
+  background-color: #4338ca !important;
+}
+
+#reader__status_span {
+  font-size: 0.875rem !important;
+  color: #64748b !important;
+}

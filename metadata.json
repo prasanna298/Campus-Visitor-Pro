@@ -1,0 +1,5 @@
+{
+  "name": "Campus Visitor Pro",
+  "description": "A professional visitor management system for pre-invitations, electronic check-ins, and real-time entry/exit tracking.",
+  "requestFramePermissions": ["camera"]
+}

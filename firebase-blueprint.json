@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "Visitor": {
+      "title": "Visitor",
+      "description": "A person visiting the campus.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the visitor" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "purpose": { "type": "string", "description": "Reason for visit (e.g., interview, meeting, vendor)" },
+        "hostName": { "type": "string", "description": "Name of the person being visited" },
+        "checkInTime": { "type": "string", "format": "date-time", "description": "Time of entry" },
+        "checkOutTime": { "type": "string", "format": "date-time", "description": "Time of exit" },
+        "status": { "type": "string", "enum": ["invited", "checked-in", "checked-out"], "description": "Current status" },
+        "invitationId": { "type": "string", "description": "Reference to the invitation if pre-invited" },
+        "documents": { "type": "array", "items": { "type": "string" }, "description": "List of documents transferred from invitation" },
+        "photoUrl": { "type": "string", "description": "Base64 encoded photo or URL of the visitor" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status", "createdAt"]
+    },
+    "Invitation": {
+      "title": "Invitation",
+      "description": "A pre-visit invitation.",
+      "type": "object",
+      "properties": {
+        "visitorName": { "type": "string" },
+        "visitorEmail": { "type": "string", "format": "email" },
+        "hostName": { "type": "string" },
+        "hostEmail": { "type": "string", "format": "email" },
+        "scheduledDate": { "type": "string", "format": "date-time" },
+        "purpose": { "type": "string" },
+        "code": { "type": "string", "description": "Unique invitation code" },
+        "status": { "type": "string", "enum": ["pending", "pre-registered", "used", "expired"] },
+        "documents": { "type": "array", "items": { "type": "string" }, "description": "List of uploaded document URLs or identifiers" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["visitorName", "visitorEmail", "hostName", "code", "status", "createdAt"]
+    },
+    "Counter": {
+      "title": "Counter",
+      "description": "A simple counter for generating unique IDs.",
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer" }
+      },
+      "required": ["count"]
+    }
+  },
+  "firestore": {
+    "/visitors/{visitorId}": {
+      "schema": "Visitor",
+      "description": "Collection of visitor records"
+    },
+    "/invitations/{invitationId}": {
+      "schema": "Invitation",
+      "description": "Collection of pre-invitations"
+    },
+    "/counters/{counterId}": {
+      "schema": "Counter",
+      "description": "Collection of counters"
+    }
+  }
+}
