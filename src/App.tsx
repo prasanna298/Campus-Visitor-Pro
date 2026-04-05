@@ -1189,7 +1189,7 @@ export default function App() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500">Password:</span>
-                      <span className="font-mono font-bold">Welcome@Appointy</span>
+                      <span className="font-mono font-bold">Appointy@123</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-400 italic">Access is limited to 12 hours per check-in.</p>
